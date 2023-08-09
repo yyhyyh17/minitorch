@@ -4,6 +4,11 @@ import pytest
 from hypothesis import given
 from hypothesis.strategies import DrawFn, composite, floats
 
+# import sys, os
+# sys.path.append(os.getcwd())
+# print('current path:',os.getcwd())
+# print('sys path:',sys.path)
+
 import minitorch
 from minitorch import (
     MathTestVariable,
@@ -118,3 +123,10 @@ def test_two_derivative(
 ) -> None:
     name, _, scalar_fn = fn
     derivative_check(scalar_fn, t1, t2)
+
+
+if __name__ == '__main__':
+    a = 1.0 
+    b = 2.0
+    c = Scalar(a) * Scalar(b)
+    
