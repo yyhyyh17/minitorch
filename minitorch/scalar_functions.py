@@ -123,7 +123,7 @@ class Inv(ScalarFunction):
     @staticmethod
     def forward(ctx: Context, a: float) -> float:
         # TODO: Implement for Task 1.2.
-        ctx.save_for_backward(-1 * a ** 2)
+        ctx.save_for_backward(-1 / (a ** 2))
         return 1.0 / a
         
 
@@ -178,7 +178,7 @@ class ReLU(ScalarFunction):
     def backward(ctx: Context, d_output: float) -> float:
         # TODO: Implement for Task 1.4.
         (a, ) = ctx.saved_values
-        return 1 if a > 0 else 0
+        return 1.0 * d_output if a >= 0.0 else 0.0
 
 
 class Exp(ScalarFunction):
@@ -244,4 +244,4 @@ class Sub(ScalarFunction):
     @staticmethod
     def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
         # TODO: Implement for Task 1.4.
-        return 1.0, -1.0
+        return 1.0 * d_output, -1.0 * d_output

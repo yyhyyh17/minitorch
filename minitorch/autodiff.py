@@ -23,9 +23,13 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
     vals = list(vals)
+    vals[arg] -= epsilon
     tmp = f(*vals)
-    vals[arg] += epsilon
-    return (f(*vals) - tmp) / epsilon 
+    
+    vals[arg] += 2 * epsilon
+    ans = (f(*vals) - tmp) / (2 * epsilon) 
+    print(ans.data)
+    return ans 
      
 
 
@@ -79,12 +83,14 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
+    variable.derivative += deriv
+    if variable.history.last_fn is None: 
+        return
     fn = variable.history.last_fn
-    variable.derivative += fn(variable.history.ctx, deriv)
-    for parent in variable.parents:
-        backpropagate(parent, variable.derivative)
+    grads = fn._backward(variable.history.ctx, deriv)
+    for parent, grad in zip(variable.parents, grads):
+        parent.backward(grad)
     
-
 
 @dataclass
 class Context:
