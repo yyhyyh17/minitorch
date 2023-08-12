@@ -277,6 +277,7 @@ class Tensor:
             Expanded version of `other` with the right derivatives
 
         """
+
         # Case 1: Both the same shape.
         if self.shape == other.shape:
             return other

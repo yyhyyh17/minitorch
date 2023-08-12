@@ -2,15 +2,6 @@ from dataclasses import dataclass
 from typing import Any, Iterable, List, Tuple
 
 from typing_extensions import Protocol
-import numpy as np
-
-from .tensor_data import (
-    MAX_DIMS,
-    broadcast_index,
-    index_to_position,
-    shape_broadcast,
-    to_index,
-)
 
 # ## Task 1.1
 # Central Difference calculation
@@ -32,13 +23,9 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
     vals = list(vals)
-    vals[arg] -= epsilon
     tmp = f(*vals)
-    
-    vals[arg] += 2 * epsilon
-    ans = (f(*vals) - tmp) / (2 * epsilon) 
-    print(ans.data)
-    return ans 
+    vals[arg] += epsilon
+    return (f(*vals) - tmp) / epsilon 
      
 
 
@@ -92,29 +79,12 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    if variable.grad is None:
-        variable.grad = variable.expand(variable._ensure_tensor(deriv))
-    else:
-        variable.grad = variable.grad + variable.expand(variable._ensure_tensor(deriv))
-    # if variable.grad is None:
-    #     variable.grad = variable.zeros()
-    # d_storage, d_shape, d_stride = deriv.tuple()
-    # v_storage, v_shape, v_stride = variable.tuple()
-    # out_index = np.array(d_shape)
-    # in_index = np.array(v_shape)
-    # out = variable.grad._tensor._storage
-    # for i in range(len(d_storage)):
-    #     to_index(i, d_shape, out_index)
-    #     broadcast_index(out_index , d_shape, v_shape, in_index)
-    #     data = d_storage[index_to_position(in_index , d_stride)]
-    #     out[index_to_position (out_index , v_stride) ] += data
-
-    if variable.history is None or (fn := variable.history.last_fn) is None: 
-        return
-    grads = fn._backward(variable.history.ctx, variable.grad)
-    for parent, grad in zip(variable.parents, grads):
-        parent.backward(grad)
+    fn = variable.history.last_fn
+    variable.derivative += fn(variable.history.ctx, deriv)
+    for parent in variable.parents:
+        backpropagate(parent, variable.derivative)
     
+
 
 @dataclass
 class Context:
