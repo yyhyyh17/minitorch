@@ -224,12 +224,18 @@ class Permute(Function):
     @staticmethod
     def forward(ctx: Context, a: Tensor, order: Tensor) -> Tensor:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError('Need to implement for Task 2.3')
+        order = order._tensor._storage.astype('i4').tolist()
+        sv = [0] * len(order)
+        for i, idx in enumerate(order):
+            sv[idx] = i
+        ctx.save_for_backward(sv)
+        return minitorch.Tensor(a._tensor.permute(*order), backend=a.backend).contiguous()
 
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, float]:
         # TODO: Implement for Task 2.4.
-        raise NotImplementedError('Need to implement for Task 2.4')
+        sv = ctx.saved_values
+        return minitorch.Tensor(grad_output._tensor.permute(*sv), backend=grad_output.backend).contiguous()
 
 
 class View(Function):
