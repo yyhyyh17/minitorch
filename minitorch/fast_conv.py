@@ -14,7 +14,7 @@ from .tensor_data import (
     index_to_position,
     to_index,
 )
-from .tensor_functions import Function
+from .tensor_functions import Function, tensor
 
 # This code will JIT compile fast versions your tensor_data functions.
 # If you get an error, read the docs for NUMBA as to what is allowed
@@ -79,13 +79,22 @@ def _tensor_conv1d(
     )
     s1 = input_strides
     s2 = weight_strides
+    for i in range(batch):
+        for j in range(out_channels):
+            for k in range (out_width):
+                out_idx = index_to_position((i, j, k), out_strides)
+                for t in range(in_channels):
+                        for y in range (kw):
+                            if k + y >= width: break
+                            out[out_idx] = input[index_to_position((i, t, k + y), input_strides)] * \
+                                                        weight[index_to_position((j, t, y), weight_strides)] + out[out_idx]
 
     # TODO: Implement for Task 4.1.
-    raise NotImplementedError('Need to implement for Task 4.1')
+    # raise NotImplementedError('Need to implement for Task 4.1')
 
 
 tensor_conv1d = njit(parallel=True)(_tensor_conv1d)
-
+tensor_conv1d = _tensor_conv1d
 
 class Conv1dFun(Function):
     @staticmethod
