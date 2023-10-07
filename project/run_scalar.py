@@ -13,14 +13,14 @@ class Network(minitorch.Module):
         # ASSIGN1.5
         # Submodules
         self.layer1 = Linear(2, hidden_layers)
-        self.layer2 = Linear(hidden_layers, hidden_layers)
+        # self.layer2 = Linear(hidden_layers, hidden_layers)
         self.layer3 = Linear(hidden_layers, 1)
         # END ASSIGN1.5
 
     def forward(self, x):
         middle = [h.relu() for h in self.layer1.forward(x)]
-        end = [h.relu() for h in self.layer2.forward(middle)]
-        return self.layer3.forward(end)[0].sigmoid()
+        # end = [h.relu() for h in self.layer2.forward(middle)]
+        return self.layer3.forward(middle)[0].sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -70,7 +70,6 @@ class ScalarTrain:
     def train(self, data, learning_rate, max_epochs=500, log_fn=default_log_fn):
         self.learning_rate = learning_rate
         self.max_epochs = max_epochs
-        self.model = Network(self.hidden_layers)
         optim = minitorch.SGD(self.model.parameters(), learning_rate)
 
         losses = []

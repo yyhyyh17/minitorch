@@ -90,7 +90,7 @@ class TensorBackend:
         self.mul_reduce = ops.reduce(operators.mul, 1.0)
         self.matrix_multiply = ops.matrix_multiply
         self.cuda = ops.cuda
-
+        
 
 class SimpleOps(TensorOps):
     @staticmethod
@@ -222,8 +222,16 @@ class SimpleOps(TensorOps):
 
     @staticmethod
     def matrix_multiply(a: "Tensor", b: "Tensor") -> "Tensor":
-        raise NotImplementedError("Not implemented in this assignment")
-
+        assert len(a.shape) >= 2 and len(b.shape) >= 2 and a.shape[:-2] == b.shape[:-2]
+        out_shape = a.shape[:-2] + (a.shape[-2],) + (b.shape[-1],)
+        out = a.zeros(out_shape)
+        out_idx = np.zeros(len(out_shape))
+        for i in range(out.size):
+            to_index(i, out.shape, out_idx)
+            for j in range(a.shape[-1]):
+                out._tensor._storage[i] += a._tensor._storage[index_to_position(np.append(out_idx[:-1], j), a.tuple()[-1])] * \
+                                        b._tensor._storage[index_to_position(np.append(out_idx[:-2], np.array([j, out_idx[-1]])), b.tuple()[-1])]
+        return out
     is_cuda = False
 
 

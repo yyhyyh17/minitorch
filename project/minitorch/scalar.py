@@ -81,6 +81,9 @@ class Scalar:
         else:
             self.name = str(self.unique_id)
 
+    def __hash__(self) -> int:
+        return self.unique_id
+
     def __repr__(self) -> str:
         return "Scalar(%f)" % self.data
 

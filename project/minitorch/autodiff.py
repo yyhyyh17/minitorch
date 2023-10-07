@@ -64,8 +64,50 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    # TODO: need to implement by self
+    # PermanentMarked = []
+    # TemporaryMarked = []
+    # result = []
+    # def visit (n: Variable) :
+    # # Don ’ t do anything with constants
+    #     if n.is_constant() :
+    #         return
+    #     if n.unique_id in PermanentMarked:
+    #         return 
+    #     elif n.unique_id in TemporaryMarked:
+    #         raise(RuntimeError("not a Dag"))
+    #     TemporaryMarked.append(n.unique_id)
+    #     if n.is_leaf():
+    #         pass
+    #     else:
+    #         for inp in n.history.inputs:
+    #             visit(inp)
+    #     TemporaryMarked.remove(n.unique_id)
+    #     PermanentMarked.append(n.unique_id)
+    #     result.insert(0, n)
+    # visit(variable)
+    # print(len(result))
+    from collections import deque, defaultdict
+    counts = defaultdict(int)
+    counts[variable] = 0
+    q = deque([variable])
+    while q:
+        var = q.popleft()
+        for inp in var.history.inputs:
+            if inp not in counts:
+                q.append(inp)
+            counts[inp] += 1
+    result = []
+    while counts:
+        for k, v in counts.copy().items():
+            if v != 0:
+                continue
+            result.append(k)
+            counts.pop(k)
+            for inp in k.history.inputs:
+                counts[inp] -= 1
+    return result
+
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -79,10 +121,24 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    fn = variable.history.last_fn
-    variable.derivative += fn(variable.history.ctx, deriv)
-    for parent in variable.parents:
-        backpropagate(parent, variable.derivative)
+    # fn = variable.history.last_fn
+    # variable.derivative += fn(variable.history.ctx, deriv)
+    # for parent in variable.parents:
+    #     backpropagate(parent, variable.derivative)
+
+    order = topological_sort(variable)
+    derivs = {variable.unique_id:deriv}
+    for node in order:
+        d_output = derivs[node.unique_id]
+        if node.is_leaf():
+            node.accumulate_derivative(d_output)
+        else :
+            for inp, d in node.chain_rule(d_output):
+                if inp.unique_id not in derivs:
+                    derivs[inp.unique_id] = 0.0
+                derivs[inp.unique_id] += d
+    return 
+
     
 
 

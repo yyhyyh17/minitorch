@@ -42,6 +42,9 @@ class ScalarHistory:
     ctx: Optional[Context] = None
     inputs: Sequence[Scalar] = ()
 
+    # def backprop_step(self, deriv):
+    #     return self.last_fn.chain_rule(self.ctx, self.inputs, deriv)
+
 
 # ## Task 1.2 and 1.4
 # Scalar Forward and Backward
