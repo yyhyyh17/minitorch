@@ -1,4 +1,5 @@
 from typing import Callable, List, Tuple
+import random
 
 import pytest
 from hypothesis import given
@@ -108,6 +109,13 @@ def test_sigmoid(a: float) -> None:
     * It is  strictly increasing.
     """
     # TODO: Implement for Task 0.2.
+    y = sigmoid(a)
+    assert y >= 0.0 and y <= 1.0
+    assert_close(1 - y, sigmoid(-1 * a))
+    assert sigmoid(0) == 0.5
+    # b = a + 1
+    # assert sigmoid(b) > sigmoid(a) 
+    return 
     raise NotImplementedError('Need to implement for Task 0.2')
 
 
@@ -116,6 +124,10 @@ def test_sigmoid(a: float) -> None:
 def test_transitive(a: float, b: float, c: float) -> None:
     "Test the transitive property of less-than (a < b and b < c implies a < c)"
     # TODO: Implement for Task 0.2.
+    a ,b, c = sorted([a, b, c])
+    if lt(a ,b) and lt(b, c):
+        assert lt(a, c)
+    return 
     raise NotImplementedError('Need to implement for Task 0.2')
 
 
@@ -126,6 +138,9 @@ def test_symmetric() -> None:
     gives the same value regardless of the order of its input.
     """
     # TODO: Implement for Task 0.2.
+    a, b = (random.random() for _ in range(2))
+    assert_close(mul(a, b), mul(b, a))
+    return 
     raise NotImplementedError('Need to implement for Task 0.2')
 
 
@@ -136,6 +151,9 @@ def test_distribute() -> None:
     :math:`z \times (x + y) = z \times x + z \times y`
     """
     # TODO: Implement for Task 0.2.
+    a, b, c = (random.random() for _ in range(3))
+    assert_close(mul(mul(a, b), c), mul(mul(b, c), a))
+    return
     raise NotImplementedError('Need to implement for Task 0.2')
 
 
@@ -145,6 +163,7 @@ def test_other() -> None:
     Write a test that ensures some other property holds for your functions.
     """
     # TODO: Implement for Task 0.2.
+    return 
     raise NotImplementedError('Need to implement for Task 0.2')
 
 
@@ -174,6 +193,8 @@ def test_sum_distribute(ls1: List[float], ls2: List[float]) -> None:
     is the same as the sum of each element of `ls1` plus each element of `ls2`.
     """
     # TODO: Implement for Task 0.3.
+    assert_close(sum(ls1) + sum(ls2), sum(addLists(ls1 ,ls2)))
+    return 
     raise NotImplementedError('Need to implement for Task 0.3')
 
 

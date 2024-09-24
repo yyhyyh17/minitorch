@@ -23,6 +23,12 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
     # TODO: Implement for Task 1.1.
+    vals = list(vals)
+    vals[arg] += epsilon
+    res1 = f(*vals)
+    vals[arg] -= 2 * epsilon
+    res2 = f(*vals)
+    return (res1 - res2) / (2 * epsilon)
     raise NotImplementedError('Need to implement for Task 1.1')
 
 
@@ -62,6 +68,22 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
         Non-constant Variables in topological order starting from the right.
     """
     # TODO: Implement for Task 1.4.
+    sorted_map = []
+    permanent = set()
+
+    def visit(node: Variable):
+        if node.unique_id in permanent:
+            return
+        if node.is_constant():
+            return 
+        if not node.is_leaf():
+            for sub_node in node.history.inputs:
+                visit(sub_node)
+        permanent.add(node.unique_id)
+        sorted_map.insert(0, node)
+
+    visit(variable)
+    return sorted_map
     raise NotImplementedError('Need to implement for Task 1.4')
 
 
@@ -77,6 +99,20 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     # TODO: Implement for Task 1.4.
+    deriv_dic = {}
+    deriv_dic[variable.unique_id] = deriv
+    compute_order = topological_sort(variable)
+    for node in compute_order:
+        if node.is_leaf():
+            continue
+        for input, grad in node.chain_rule(deriv_dic[node.unique_id]):
+            if input.unique_id in deriv_dic:
+                deriv_dic[input.unique_id] += grad
+            else:
+                deriv_dic[input.unique_id] = grad
+            if input.is_leaf():
+                input.accumulate_derivative(grad)
+    return 
     raise NotImplementedError('Need to implement for Task 1.4')
 
 
